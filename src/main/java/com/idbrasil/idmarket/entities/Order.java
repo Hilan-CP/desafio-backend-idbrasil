@@ -15,7 +15,10 @@ public class Order {
     private Long id;
 
     private Long customerId;
+
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
     private Double total;
     private Instant createdAt;
 
