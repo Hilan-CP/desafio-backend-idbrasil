@@ -66,6 +66,41 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.13</version>
+                <configuration>
+                    <excludes>
+                        <exclude>com/idbrasil/idmarket/IdmarketApplication.class</exclude>
+                        <exclude>com/idbrasil/idmarket/dto/**</exclude>
+                        <exclude>com/idbrasil/idmarket/entities/**</exclude>
+                        <exclude>com/idbrasil/idmarket/mappers/**</exclude>
+                        <exclude>com/idbrasil/idmarket/repositories/**</exclude>
+                        <exclude>com/idbrasil/idmarket/validations/**</exclude>
+                        <exclude>com/idbrasil/idmarket/controllers/**</exclude>
+                        <exclude>com/idbrasil/idmarket/exceptions/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/jacoco-report</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 

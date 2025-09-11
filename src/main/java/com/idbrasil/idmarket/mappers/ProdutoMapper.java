@@ -1,4 +1,4 @@
-package com.idbrasil.idmarket.mapper;
+package com.idbrasil.idmarket.mappers;
 
 import com.idbrasil.idmarket.dto.ProdutoDTO;
 import com.idbrasil.idmarket.entities.Produto;
