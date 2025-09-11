@@ -15,6 +15,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +47,8 @@ public class ProdutoService {
     public ProdutoDTO createProduto(ProdutoDTO dto) {
         validator.validateUniqueSku(null, dto.getSku());
         Produto entity = ProdutoMapper.dtoToEntity(new Produto(), dto);
+        entity.setAtivo(true);
+        entity.setCreatedAt(Instant.now());
         entity = produtoRepository.save(entity);
         return ProdutoMapper.entityToDto(entity);
     }
@@ -56,6 +59,7 @@ public class ProdutoService {
         Produto entity = produtoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
         entity = ProdutoMapper.dtoToEntity(entity, dto);
+        entity.setUpdatedAt(Instant.now());
         entity = produtoRepository.save(entity);
         return ProdutoMapper.entityToDto(entity);
     }
@@ -65,6 +69,7 @@ public class ProdutoService {
         Produto entity = produtoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
         entity.setEstoque(dto.getEstoque());
+        entity.setUpdatedAt(Instant.now());
         entity = produtoRepository.save(entity);
         return ProdutoMapper.entityToDto(entity);
     }
@@ -74,6 +79,7 @@ public class ProdutoService {
         Produto entity = produtoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
         entity.setAtivo(false);
+        entity.setUpdatedAt(Instant.now());
         produtoRepository.save(entity);
     }
 
