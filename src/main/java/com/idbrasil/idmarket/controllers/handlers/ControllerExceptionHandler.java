@@ -1,5 +1,6 @@
 package com.idbrasil.idmarket.controllers.handlers;
 
+import com.idbrasil.idmarket.exceptions.OutOfStockException;
 import com.idbrasil.idmarket.exceptions.ResourceNotFoundException;
 import com.idbrasil.idmarket.exceptions.UniqueFieldException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,13 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(UniqueFieldException.class)
     public ResponseEntity<CustomError> handleUniqueFieldException(UniqueFieldException exception, HttpServletRequest request){
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+        CustomError error = new CustomError(Instant.now(), status.value(), exception.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(OutOfStockException.class)
+    public ResponseEntity<CustomError> handleOutOfStockException(OutOfStockException exception, HttpServletRequest request){
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
         CustomError error = new CustomError(Instant.now(), status.value(), exception.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(error);

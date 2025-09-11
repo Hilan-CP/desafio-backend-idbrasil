@@ -1,35 +1,23 @@
-package com.idbrasil.idmarket.entities;
+package com.idbrasil.idmarket.dto;
 
-import jakarta.persistence.*;
+import com.idbrasil.idmarket.entities.OrderStatus;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-@Entity
-@Table(name = "tb_order")
-public class Order {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class OrderDTO {
     private Long id;
-
     private Long customerId;
-
-    @Enumerated(EnumType.STRING)
     private OrderStatus status;
-
     private Double total;
     private Instant createdAt;
+    private List<OrderItemDTO> items = new ArrayList<>();
 
-    @OneToMany(mappedBy = "order")
-    private List<OrderItem> items = new ArrayList<>();
-
-    public Order() {
+    public OrderDTO() {
     }
 
-    public Order(Long id, Long customerId, OrderStatus status, Double total, Instant createdAt) {
+    public OrderDTO(Long id, Long customerId, OrderStatus status, Double total, Instant createdAt) {
         this.id = id;
         this.customerId = customerId;
         this.status = status;
@@ -77,19 +65,7 @@ public class Order {
         this.createdAt = createdAt;
     }
 
-    public List<OrderItem> getItems() {
+    public List<OrderItemDTO> getItems() {
         return items;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return Objects.equals(id, order.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 }
