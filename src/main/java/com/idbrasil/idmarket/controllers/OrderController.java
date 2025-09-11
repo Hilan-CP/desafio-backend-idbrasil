@@ -41,4 +41,16 @@ public class OrderController {
         URI path = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").build(dto.getId());
         return ResponseEntity.created(path).body(order);
     }
+
+    @PostMapping("/{id}/pay")
+    public ResponseEntity<OrderDTO> updateOrderToPaid(@PathVariable Long id){
+        OrderDTO order = service.updateOrderToPaid(id);
+        return ResponseEntity.ok(order);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<OrderDTO> updateOrderToCanceled(@PathVariable Long id){
+        OrderDTO order = service.updateOrderToCanceled(id);
+        return ResponseEntity.ok(order);
+    }
 }

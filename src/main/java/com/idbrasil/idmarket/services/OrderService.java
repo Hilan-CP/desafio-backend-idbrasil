@@ -6,6 +6,7 @@ import com.idbrasil.idmarket.entities.OrderItem;
 import com.idbrasil.idmarket.entities.OrderStatus;
 import com.idbrasil.idmarket.entities.Produto;
 import com.idbrasil.idmarket.exceptions.ErrorMessage;
+import com.idbrasil.idmarket.exceptions.OrderStatusException;
 import com.idbrasil.idmarket.exceptions.OutOfStockException;
 import com.idbrasil.idmarket.exceptions.ResourceNotFoundException;
 import com.idbrasil.idmarket.mappers.OrderMapper;
@@ -50,7 +51,7 @@ public class OrderService {
     @Transactional
     public OrderDTO createOrder(OrderDTO dto) {
         Order order = OrderMapper.dtoToEntity(new Order(), dto);
-        List<Produto> produtosComprados = new ArrayList<>();
+        List<Produto> produtosSold = new ArrayList<>();
         for (OrderItem item : order.getItems()) {
             Optional<Produto> foundProduto = produtoRepository.findBySku(item.getProductSku());
             Produto produto = foundProduto.orElseThrow(() -> new ResourceNotFoundException("SKU não encontrado: " + item.getProductSku()));
@@ -59,7 +60,7 @@ public class OrderService {
             }
             item.setPrice(produto.getPreco());
             produto.setEstoque(produto.getEstoque() - item.getQuantity());
-            produtosComprados.add(produto);
+            produtosSold.add(produto);
         }
         order.setTotal(order.getItems().stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
@@ -67,7 +68,35 @@ public class OrderService {
         order.setStatus(OrderStatus.CREATED);
         order.setCreatedAt(Instant.now());
         order = orderRepository.save(order);
-        produtoRepository.saveAll(produtosComprados);
+        produtoRepository.saveAll(produtosSold);
+        return OrderMapper.entityToDto(order);
+    }
+
+    @Transactional
+    public OrderDTO updateOrderToPaid(Long id){
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
+        if(order.getStatus().equals(OrderStatus.CANCELLED)){
+            throw new OrderStatusException(ErrorMessage.CANCELED_ORDER);
+        }
+        order.setStatus(OrderStatus.PAID);
+        order = orderRepository.save(order);
+        return OrderMapper.entityToDto(order);
+    }
+
+    @Transactional
+    public OrderDTO updateOrderToCanceled(Long id){
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
+        order.setStatus(OrderStatus.CANCELLED);
+        List<Produto> produtosRestored = new ArrayList<>();
+        for(OrderItem item : order.getItems()){
+            Produto produto = produtoRepository.findBySku(item.getProductSku()).get();
+            produto.setEstoque(produto.getEstoque() + item.getQuantity());
+            produtosRestored.add(produto);
+        }
+        order = orderRepository.save(order);
+        produtoRepository.saveAll(produtosRestored);
         return OrderMapper.entityToDto(order);
     }
 
