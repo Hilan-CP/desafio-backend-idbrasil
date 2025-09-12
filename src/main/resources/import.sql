@@ -7,7 +7,7 @@ INSERT INTO tb_produto(sku, nome, descricao, preco, estoque, ativo, created_at, 
 INSERT INTO tb_produto(sku, nome, descricao, preco, estoque, ativo, created_at, updated_at) VALUES ('P-007', 'Cadeira Gamer', 'Cadeira ergonômica para jogos', 850.0, 2, true, '2025-09-10T20:30:00Z', null);
 INSERT INTO tb_produto(sku, nome, descricao, preco, estoque, ativo, created_at, updated_at) VALUES ('P-008', 'Notebook', 'Notebook para trabalho de alta performance', 3200.0, 1, true, '2025-09-10T20:30:00Z', null);
 INSERT INTO tb_produto(sku, nome, descricao, preco, estoque, ativo, created_at, updated_at) VALUES ('P-009', 'Roteador', 'Roteador dual-band com 4 antenas', 180.0, 70, true, '2025-09-10T20:30:00Z', null);
-INSERT INTO tb_produto(sku, nome, descricao, preco, estoque, ativo, created_at, updated_at) VALUES (1'P-010', 'HD Externo', 'HD externo 1TB USB 3.0', 300.0, 0, false, '2025-09-10T20:30:00Z', null);
+INSERT INTO tb_produto(sku, nome, descricao, preco, estoque, ativo, created_at, updated_at) VALUES ('P-010', 'HD Externo', 'HD externo 1TB USB 3.0', 300.0, 0, false, '2025-09-10T20:30:00Z', null);
 
 INSERT INTO tb_order(customer_id, status, total, created_at) VALUES (456, 'CREATED', 100.0, '2025-09-10T20:40:00Z');
 INSERT INTO tb_order(customer_id, status, total, created_at) VALUES (456, 'PAID', 320.0, '2025-09-10T20:40:00Z');
