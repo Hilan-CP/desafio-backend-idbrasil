@@ -415,10 +415,6 @@
 					"request": {
 						"method": "POST",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"customerId\":456,\r\n    \"items\":[\r\n        {\r\n            \"productSku\":\"P-001\",\r\n            \"quantity\":10\r\n        },\r\n        {\r\n            \"productSku\":\"P-002\",\r\n            \"quantity\":15\r\n        },\r\n        {\r\n            \"productSku\":\"P-008\",\r\n            \"quantity\":1\r\n        }\r\n    ]\r\n}"
-						},
 						"url": {
 							"raw": "http://localhost:8080/orders/1/pay",
 							"protocol": "http",
@@ -440,10 +436,6 @@
 					"request": {
 						"method": "POST",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"customerId\":456,\r\n    \"items\":[\r\n        {\r\n            \"productSku\":\"P-001\",\r\n            \"quantity\":10\r\n        },\r\n        {\r\n            \"productSku\":\"P-002\",\r\n            \"quantity\":15\r\n        },\r\n        {\r\n            \"productSku\":\"P-008\",\r\n            \"quantity\":1\r\n        }\r\n    ]\r\n}"
-						},
 						"url": {
 							"raw": "http://localhost:8080/orders/1/cancel",
 							"protocol": "http",
