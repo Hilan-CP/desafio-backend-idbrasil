@@ -3,6 +3,7 @@ package com.idbrasil.idmarket.controllers;
 import com.idbrasil.idmarket.dto.OrderDTO;
 import com.idbrasil.idmarket.entities.OrderStatus;
 import com.idbrasil.idmarket.services.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO dto) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderDTO dto) {
         OrderDTO order = service.createOrder(dto);
         URI path = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").build(dto.getId());
         return ResponseEntity.created(path).body(order);

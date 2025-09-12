@@ -1,13 +1,13 @@
 package com.idbrasil.idmarket.services;
 
 import com.idbrasil.idmarket.dto.ProdutoDTO;
+import com.idbrasil.idmarket.dto.ProdutoEstoqueDTO;
 import com.idbrasil.idmarket.entities.Produto;
 import com.idbrasil.idmarket.exceptions.ErrorMessage;
 import com.idbrasil.idmarket.exceptions.ResourceNotFoundException;
 import com.idbrasil.idmarket.mappers.ProdutoMapper;
 import com.idbrasil.idmarket.repositories.ProdutoRepository;
 import com.idbrasil.idmarket.repositories.ProdutoSpecification;
-import com.idbrasil.idmarket.validations.ProdutoValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,9 +26,6 @@ public class ProdutoService {
     @Autowired
     private ProdutoRepository produtoRepository;
 
-    @Autowired
-    private ProdutoValidator validator;
-
     @Transactional(readOnly = true)
     public ProdutoDTO getProduto(Long id) {
         Optional<Produto> result = produtoRepository.findById(id);
@@ -45,7 +42,6 @@ public class ProdutoService {
 
     @Transactional
     public ProdutoDTO createProduto(ProdutoDTO dto) {
-        validator.validateUniqueSku(null, dto.getSku());
         Produto entity = ProdutoMapper.dtoToEntity(new Produto(), dto);
         entity.setAtivo(true);
         entity.setCreatedAt(Instant.now());
@@ -55,7 +51,6 @@ public class ProdutoService {
 
     @Transactional
     public ProdutoDTO updateProduto(Long id, ProdutoDTO dto) {
-        validator.validateUniqueSku(id, dto.getSku());
         Produto entity = produtoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
         entity = ProdutoMapper.dtoToEntity(entity, dto);
@@ -65,7 +60,7 @@ public class ProdutoService {
     }
 
     @Transactional
-    public ProdutoDTO updateEstoqueProduto(Long id, ProdutoDTO dto) {
+    public ProdutoDTO updateEstoqueProduto(Long id, ProdutoEstoqueDTO dto) {
         Produto entity = produtoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
         entity.setEstoque(dto.getEstoque());

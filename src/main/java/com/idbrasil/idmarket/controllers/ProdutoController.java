@@ -1,7 +1,9 @@
 package com.idbrasil.idmarket.controllers;
 
 import com.idbrasil.idmarket.dto.ProdutoDTO;
+import com.idbrasil.idmarket.dto.ProdutoEstoqueDTO;
 import com.idbrasil.idmarket.services.ProdutoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,20 +38,20 @@ public class ProdutoController {
     }
 
     @PostMapping
-    public ResponseEntity<ProdutoDTO> createProduto(@RequestBody ProdutoDTO dto) {
+    public ResponseEntity<ProdutoDTO> createProduto(@Valid @RequestBody ProdutoDTO dto) {
         ProdutoDTO produto = service.createProduto(dto);
         URI path = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").build(dto.getId());
         return ResponseEntity.created(path).body(produto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProdutoDTO> updateProduto(@PathVariable Long id, @RequestBody ProdutoDTO dto) {
+    public ResponseEntity<ProdutoDTO> updateProduto(@PathVariable Long id, @Valid @RequestBody ProdutoDTO dto) {
         ProdutoDTO produto = service.updateProduto(id, dto);
         return ResponseEntity.ok(produto);
     }
 
     @PatchMapping("/{id}/stock")
-    public ResponseEntity<ProdutoDTO> updateEstoqueProduto(@PathVariable Long id, @RequestBody ProdutoDTO dto) {
+    public ResponseEntity<ProdutoDTO> updateEstoqueProduto(@PathVariable Long id, @Valid @RequestBody ProdutoEstoqueDTO dto) {
         ProdutoDTO produto = service.updateEstoqueProduto(id, dto);
         return ResponseEntity.ok(produto);
     }

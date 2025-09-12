@@ -2,6 +2,7 @@ package com.idbrasil.idmarket.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.idbrasil.idmarket.dto.ProdutoDTO;
+import com.idbrasil.idmarket.dto.ProdutoEstoqueDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ public class ProdutoControllerIntegrationTests {
     private boolean ativo;
     private Integer estoque;
     private ProdutoDTO produtoDTO;
+    private ProdutoEstoqueDTO produtoEstoqueDTO;
 
     @BeforeEach
     void setUp() {
@@ -47,6 +49,7 @@ public class ProdutoControllerIntegrationTests {
         ativo = true;
         estoque = 200;
         produtoDTO = new ProdutoDTO(null, newSku, "Novo Produto", "Nova Descricao", 1000.0, 5, true, null, null);
+        produtoEstoqueDTO = new ProdutoEstoqueDTO(estoque);
     }
 
     @Test
@@ -167,8 +170,7 @@ public class ProdutoControllerIntegrationTests {
 
     @Test
     public void updateEstoqueProdutoShouldReturnOkWhenExistingId() throws Exception {
-        produtoDTO.setEstoque(estoque);
-        String json = objectMapper.writeValueAsString(produtoDTO);
+        String json = objectMapper.writeValueAsString(produtoEstoqueDTO);
         mockMvc.perform(patch("/products/{id}/stock", existingId)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(json)
@@ -180,8 +182,7 @@ public class ProdutoControllerIntegrationTests {
 
     @Test
     public void updateEstoqueProdutoShouldReturnNotFoundWhenNonExistingId() throws Exception {
-        produtoDTO.setEstoque(estoque);
-        String json = objectMapper.writeValueAsString(produtoDTO);
+        String json = objectMapper.writeValueAsString(produtoEstoqueDTO);
         mockMvc.perform(patch("/products/{id}/stock", nonExistingId)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(json)

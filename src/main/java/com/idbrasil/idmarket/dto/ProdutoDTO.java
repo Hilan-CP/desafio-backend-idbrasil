@@ -1,15 +1,35 @@
 package com.idbrasil.idmarket.dto;
 
+import com.idbrasil.idmarket.validations.UniqueProdutoSku;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.time.Instant;
 
+@UniqueProdutoSku
 public class ProdutoDTO {
 
     private Long id;
+
+    @NotBlank(message = "Obrigatório informar SKU")
     private String sku;
+
+    @NotBlank(message = "Obrigatório informar nome do produto")
     private String nome;
+
+    @NotBlank(message = "Obrigatório informar descrição do produto")
     private String descricao;
+
+    @NotNull(message = "Obrigatório informar preço do produto")
+    @Positive(message = "Preço deve ser maior que zero")
     private Double preco;
+
+    @NotNull(message = "Obrigatório informar estoque do produto")
+    @PositiveOrZero(message = "Estoque deve ser maior ou igual a zero")
     private Integer estoque;
+
     private boolean ativo;
     private Instant createdAt;
     private Instant updatedAt;

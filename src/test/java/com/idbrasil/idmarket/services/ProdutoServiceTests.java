@@ -1,11 +1,10 @@
 package com.idbrasil.idmarket.services;
 
 import com.idbrasil.idmarket.dto.ProdutoDTO;
+import com.idbrasil.idmarket.dto.ProdutoEstoqueDTO;
 import com.idbrasil.idmarket.entities.Produto;
 import com.idbrasil.idmarket.exceptions.ResourceNotFoundException;
-import com.idbrasil.idmarket.exceptions.UniqueFieldException;
 import com.idbrasil.idmarket.repositories.ProdutoRepository;
-import com.idbrasil.idmarket.validations.ProdutoValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,15 +34,13 @@ public class ProdutoServiceTests {
     @Mock
     private ProdutoRepository repository;
 
-    @Mock
-    private ProdutoValidator validator;
-
     private Long existingId;
     private Long nonExistingId;
     private String existingSku;
     private String newSku;
     private Produto produto;
     private ProdutoDTO newProdutoDto;
+    private ProdutoEstoqueDTO produtoEstoqueDTO;
     private Page<Produto> pagedProdutos;
 
     @BeforeEach
@@ -54,14 +51,12 @@ public class ProdutoServiceTests {
         newSku = "P-100";
         produto = new Produto(existingId, existingSku, "Teclado", "Teclado sem fio", 200.0, 2, true, null, null);
         newProdutoDto = new ProdutoDTO(null, newSku, "Novo Produto", "Nova descricao", 100.0, 20, true, null, null);
+        produtoEstoqueDTO = new ProdutoEstoqueDTO(150);
         pagedProdutos = new PageImpl<>(List.of(produto));
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(produto));
         Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
         Mockito.when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(pagedProdutos);
         Mockito.when(repository.save(any())).thenReturn(produto);
-        Mockito.doThrow(UniqueFieldException.class).when(validator).validateUniqueSku(newProdutoDto.getId(), existingSku);
-        Mockito.doNothing().when(validator).validateUniqueSku(produto.getId(), existingSku);
-        Mockito.doNothing().when(validator).validateUniqueSku(any(), eq(newSku));
     }
 
     @Test
@@ -90,14 +85,6 @@ public class ProdutoServiceTests {
     }
 
     @Test
-    public void createProdutoShouldThrowUniqueFieldExceptionWhenExistingSku(){
-        newProdutoDto.setSku(existingSku);
-        Assertions.assertThrows(UniqueFieldException.class, () -> {
-            service.createProduto(newProdutoDto);
-        });
-    }
-
-    @Test
     public void updateProdutoShouldReturnProdutoDTOWhenExistingId(){
         ProdutoDTO produtoDTO = service.updateProduto(existingId, newProdutoDto);
         Assertions.assertNotNull(produtoDTO.getId());
@@ -119,24 +106,15 @@ public class ProdutoServiceTests {
     }
 
     @Test
-    public void updateProdutoShouldThrowUniqueSkuExceptionWhenDifferentIdAndExistingSku(){
-        newProdutoDto.setSku(existingSku);
-        Assertions.assertThrows(UniqueFieldException.class, () -> {
-            service.updateProduto(newProdutoDto.getId(), newProdutoDto);
-        });
-    }
-
-    @Test
     public void updateEstoqueProdutoShouldReturnProdutoDTOWhenExistingId(){
-        Assertions.assertDoesNotThrow(() -> {
-            service.updateEstoqueProduto(existingId, newProdutoDto);
-        });
+        ProdutoDTO produtoDTO = service.updateEstoqueProduto(existingId, produtoEstoqueDTO);
+        Assertions.assertEquals(produtoDTO.getEstoque(), produtoEstoqueDTO.getEstoque());
     }
 
     @Test
     public void updateEstoqueProdutoShouldThrowResourceNotFoundExceptionWhenNonExistingId(){
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-            service.updateEstoqueProduto(nonExistingId, newProdutoDto);
+            service.updateEstoqueProduto(nonExistingId, produtoEstoqueDTO);
         });
     }
 

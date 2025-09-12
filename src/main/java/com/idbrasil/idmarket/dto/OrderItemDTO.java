@@ -1,8 +1,17 @@
 package com.idbrasil.idmarket.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 public class OrderItemDTO {
+
+    @NotNull(message = "Obrigatório informar SKU do produto comprado")
     private String productSku;
+
+    @NotNull(message = "Obrigatório informar quantidade do produto comprado")
+    @Positive(message = "A quantidade do produto comprado precisa ser maior que zero")
     private Integer quantity;
+
     private Double price;
 
     public OrderItemDTO() {

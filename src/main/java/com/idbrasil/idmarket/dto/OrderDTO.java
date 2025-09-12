@@ -1,6 +1,9 @@
 package com.idbrasil.idmarket.dto;
 
 import com.idbrasil.idmarket.entities.OrderStatus;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -8,11 +11,16 @@ import java.util.List;
 
 public class OrderDTO {
     private Long id;
+
+    @NotNull(message = "Obrigatório informar o cliente")
     private Long customerId;
+
     private OrderStatus status;
     private Double total;
     private Instant createdAt;
-    private List<OrderItemDTO> items = new ArrayList<>();
+
+    @NotEmpty(message = "É necessário ter no mínimo 1 item de pedido")
+    private List<@Valid OrderItemDTO> items = new ArrayList<>();
 
     public OrderDTO() {
     }
