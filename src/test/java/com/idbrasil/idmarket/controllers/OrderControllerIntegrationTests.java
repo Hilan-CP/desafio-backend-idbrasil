@@ -126,6 +126,17 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    public void createOrderShouldReturnUnprocessableEntityWhenProdutoNotAtivo() throws Exception {
+        orderDTO.getItems().getFirst().setProductSku("P-010");
+        String json = objectMapper.writeValueAsString(orderDTO);
+        mockMvc.perform(post("/orders")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
     public void updateOrderToPaidShouldReturnOkWhenExistingId() throws Exception {
         mockMvc.perform(post("/orders/{id}/pay", existingId)
                         .accept(MediaType.APPLICATION_JSON))

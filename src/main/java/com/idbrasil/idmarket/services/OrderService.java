@@ -5,10 +5,7 @@ import com.idbrasil.idmarket.entities.Order;
 import com.idbrasil.idmarket.entities.OrderItem;
 import com.idbrasil.idmarket.entities.OrderStatus;
 import com.idbrasil.idmarket.entities.Produto;
-import com.idbrasil.idmarket.exceptions.ErrorMessage;
-import com.idbrasil.idmarket.exceptions.OrderStatusException;
-import com.idbrasil.idmarket.exceptions.OutOfStockException;
-import com.idbrasil.idmarket.exceptions.ResourceNotFoundException;
+import com.idbrasil.idmarket.exceptions.*;
 import com.idbrasil.idmarket.mappers.OrderMapper;
 import com.idbrasil.idmarket.repositories.OrderRepository;
 import com.idbrasil.idmarket.repositories.OrderSpecification;
@@ -51,20 +48,8 @@ public class OrderService {
     @Transactional
     public OrderDTO createOrder(OrderDTO dto) {
         Order order = OrderMapper.dtoToEntity(new Order(), dto);
-        List<Produto> produtosSold = new ArrayList<>();
-        for (OrderItem item : order.getItems()) {
-            Optional<Produto> foundProduto = produtoRepository.findBySku(item.getProductSku());
-            Produto produto = foundProduto.orElseThrow(() -> new ResourceNotFoundException("SKU não encontrado: " + item.getProductSku()));
-            if(produto.getEstoque() < item.getQuantity()){
-                throw new OutOfStockException("Produto esgotado - SKU: " + item.getProductSku());
-            }
-            item.setPrice(produto.getPreco());
-            produto.setEstoque(produto.getEstoque() - item.getQuantity());
-            produtosSold.add(produto);
-        }
-        order.setTotal(order.getItems().stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                .sum());
+        List<Produto> produtosSold = processSoldProdutos(order.getItems());
+        order.setTotal(calculateTotal(order.getItems()));
         order.setStatus(OrderStatus.CREATED);
         order.setCreatedAt(Instant.now());
         order = orderRepository.save(order);
@@ -76,8 +61,11 @@ public class OrderService {
     public OrderDTO updateOrderToPaid(Long id){
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
+        if(order.getStatus().equals(OrderStatus.PAID)){
+            throw new OrderStatusException(ErrorMessage.PAID_ORDER);
+        }
         if(order.getStatus().equals(OrderStatus.CANCELLED)){
-            throw new OrderStatusException(ErrorMessage.CANCELED_ORDER);
+            throw new OrderStatusException(ErrorMessage.CANCELED_ORDER_CANNOT_BE_PAID);
         }
         order.setStatus(OrderStatus.PAID);
         order = orderRepository.save(order);
@@ -88,13 +76,11 @@ public class OrderService {
     public OrderDTO updateOrderToCanceled(Long id){
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
-        order.setStatus(OrderStatus.CANCELLED);
-        List<Produto> produtosRestored = new ArrayList<>();
-        for(OrderItem item : order.getItems()){
-            Produto produto = produtoRepository.findBySku(item.getProductSku()).get();
-            produto.setEstoque(produto.getEstoque() + item.getQuantity());
-            produtosRestored.add(produto);
+        if(order.getStatus().equals(OrderStatus.CANCELLED)){
+            throw new OrderStatusException(ErrorMessage.CANCELED_ORDER);
         }
+        order.setStatus(OrderStatus.CANCELLED);
+        List<Produto> produtosRestored = refundSoldProdutos(order.getItems());
         order = orderRepository.save(order);
         produtoRepository.saveAll(produtosRestored);
         return OrderMapper.entityToDto(order);
@@ -109,5 +95,43 @@ public class OrderService {
             specifications.add(OrderSpecification.equalStatus(status));
         }
         return Specification.allOf(specifications);
+    }
+
+    private double calculateTotal(List<OrderItem> items){
+        return items.stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+    }
+
+    private List<Produto> processSoldProdutos(List<OrderItem> items){
+        List<Produto> produtosSold = new ArrayList<>();
+        for (OrderItem item : items) {
+            Optional<Produto> foundProduto = produtoRepository.findBySku(item.getProductSku());
+            Produto produto = foundProduto.orElseThrow(() -> new ResourceNotFoundException("SKU não encontrado: " + item.getProductSku()));
+            if(produto.getEstoque() < item.getQuantity()){
+                throw new OutOfStockException("Produto esgotado - SKU: " + item.getProductSku());
+            }
+            if(!produto.isAtivo()){
+                throw new InactiveProductException("Produto com SKU " + item.getProductSku() + " não é mais vendido");
+            }
+            item.setPrice(produto.getPreco());
+            produto.setEstoque(produto.getEstoque() - item.getQuantity());
+            produtosSold.add(produto);
+        }
+        return produtosSold;
+    }
+
+    private List<Produto> refundSoldProdutos(List<OrderItem> items){
+        List<Produto> produtosRestored = new ArrayList<>();
+        for(OrderItem item : items){
+            Optional<Produto> foundProduto = produtoRepository.findBySku(item.getProductSku());
+            if(foundProduto.isEmpty()){
+                continue; // se o produto comprado teve SKU alterado, pula para o próximo
+            }
+            Produto produto = foundProduto.get();
+            produto.setEstoque(produto.getEstoque() + item.getQuantity());
+            produtosRestored.add(produto);
+        }
+        return produtosRestored;
     }
 }

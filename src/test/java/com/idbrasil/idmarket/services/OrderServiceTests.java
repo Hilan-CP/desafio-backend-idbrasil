@@ -6,6 +6,7 @@ import com.idbrasil.idmarket.entities.Order;
 import com.idbrasil.idmarket.entities.OrderItem;
 import com.idbrasil.idmarket.entities.OrderStatus;
 import com.idbrasil.idmarket.entities.Produto;
+import com.idbrasil.idmarket.exceptions.InactiveProductException;
 import com.idbrasil.idmarket.exceptions.OrderStatusException;
 import com.idbrasil.idmarket.exceptions.OutOfStockException;
 import com.idbrasil.idmarket.exceptions.ResourceNotFoundException;
@@ -117,6 +118,14 @@ public class OrderServiceTests {
     public void createOrderShouldThrowOutOfStockExceptionWhenOutOfStockSku() {
         newOrderDTO.getItems().getFirst().setProductSku(outOfStockSku);
         Assertions.assertThrows(OutOfStockException.class, () -> {
+            service.createOrder(newOrderDTO);
+        });
+    }
+
+    @Test
+    public void createOrderShouldThrowInactiveProductExceptionWhenAtivoIsFalse() {
+        produto.setAtivo(false);
+        Assertions.assertThrows(InactiveProductException.class, () -> {
             service.createOrder(newOrderDTO);
         });
     }
