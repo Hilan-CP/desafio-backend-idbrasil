@@ -24,7 +24,6 @@ public class ProdutoMapper {
         entity.setDescricao(dto.getDescricao());
         entity.setPreco(dto.getPreco());
         entity.setEstoque(dto.getEstoque());
-        entity.setAtivo(dto.isAtivo());
         return entity;
     }
 }

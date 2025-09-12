@@ -144,8 +144,16 @@ public class OrderServiceTests {
     }
 
     @Test
-    public void updateOrderToPaidShouldThrowOrderStatusExceptionWhenCanceled() {
+    public void updateOrderToPaidShouldThrowOrderStatusExceptionWhenStatusCanceled() {
         order.setStatus(OrderStatus.CANCELLED);
+        Assertions.assertThrows(OrderStatusException.class, () -> {
+            service.updateOrderToPaid(existingId);
+        });
+    }
+
+    @Test
+    public void updateOrderToPaidShouldThrowOrderStatusExceptionWhenStatusPaid() {
+        order.setStatus(OrderStatus.PAID);
         Assertions.assertThrows(OrderStatusException.class, () -> {
             service.updateOrderToPaid(existingId);
         });
@@ -161,6 +169,14 @@ public class OrderServiceTests {
     public void updateOrderToCanceledShouldThrowResourceNotFoundExceptionWhenNonExistingId() {
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             service.updateOrderToCanceled(nonExistingId);
+        });
+    }
+
+    @Test
+    public void updateOrderToCanceledShouldThrowOrderStatusExceptionWhenStatusCanceled() {
+        order.setStatus(OrderStatus.CANCELLED);
+        Assertions.assertThrows(OrderStatusException.class, () -> {
+            service.updateOrderToCanceled(existingId);
         });
     }
 }
